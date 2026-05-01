@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Drawing;
+using UnityEngine;
+using UnityEngine.TextCore.Text;
 using UnityEngine.Tilemaps;
-using System.Collections.Generic;
 
 public class BoardManager : MonoBehaviour
 {
@@ -22,6 +24,11 @@ public class BoardManager : MonoBehaviour
     private Tilemap m_Tilemap;
     //private Grid m_Grid;
 
+    public EnemyController[] EnemyPrefab;
+    public GroupController GroupController;
+    public Character[] PartyPrefabs;
+    public FoodObject[] FoodPrefab;
+    public ChestObject[] ChestPrefab;
     public Tile[] GroundTiles;
     public ExitCellObject ExitCellPrefab;
 
@@ -51,9 +58,9 @@ public class BoardManager : MonoBehaviour
         //m_Grid = GetComponentInChildren<Grid>();
         m_EmptyCellsList = new List<Vector2Int>();
         m_BoardData = new CellData[MapWidth, MapHeight];
-        for (int x = 0; x<MapWidth; x++)
+        for (int x = 0; x < MapWidth; x++)
         {
-            for (int y = 0; y<MapHeight; y++)
+            for (int y = 0; y < MapHeight; y++)
             {
                 m_BoardData[x, y] = new CellData();
                 m_BoardData[x, y].Passable = false;
@@ -61,6 +68,17 @@ public class BoardManager : MonoBehaviour
         }
         GenerateDungeon();
         CorridorCreator();
+        GenerateEnemy();
+        GenerateFood();
+        GenerateChest();
+        if (!GroupController.HasParty)
+        {
+            SpawnParty();
+        }
+        else
+        {
+            RepositionParty();
+        }
     }
 
     void GenerateDungeon()
@@ -93,7 +111,7 @@ public class BoardManager : MonoBehaviour
             }
         }
         Vector2Int endCoord = GetRandomPointInRoom(rooms[Random.Range(0, rooms.Count)]);
-        AddObject(Instantiate(ExitCellPrefab), endCoord); 
+        AddObject(Instantiate(ExitCellPrefab), endCoord);
         //m_EmptyCellsList.Remove(endCoord);
     }
 
@@ -221,10 +239,10 @@ public class BoardManager : MonoBehaviour
             }
 
             // Conectar las dos salas
-                ConnectCorridor(
-                GetRandomPointInRoom(bestA),
-                GetRandomPointInRoom(bestB)
-            );
+            ConnectCorridor(
+            GetRandomPointInRoom(bestA),
+            GetRandomPointInRoom(bestB)
+        );
 
             // Mover roomB a conectadas
             connected.Add(bestB);
@@ -408,15 +426,88 @@ public class BoardManager : MonoBehaviour
 
                 if (cellData != null && cellData.ContainedObject != null)
                 {
-                    Destroy(cellData.ContainedObject.gameObject);
+                    if (!(cellData.ContainedObject is Character))
+                    {
+                        Destroy(cellData.ContainedObject.gameObject);                        
+                    }
                     cellData.ContainedObject = null;
                 }
             }
         }
 
         m_Tilemap.ClearAllTiles();
-
         m_EmptyCellsList.Clear();
         rooms.Clear();
+    }
+
+    void GenerateEnemy()
+    {
+        int enemyCount = Random.Range(1, 3);
+        for (int i = 0; i < enemyCount; ++i)
+        {
+            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            Vector2Int coord = m_EmptyCellsList[randomIndex];
+
+            m_EmptyCellsList.RemoveAt(randomIndex);
+            EnemyController newEnemy = Instantiate(EnemyPrefab[Random.Range(0, EnemyPrefab.Length)]);
+            AddObject(newEnemy, coord);
+        }
+    }
+
+    void SpawnParty()
+    {
+        int partySize = Random.Range(1, 3);
+        for (int i = 0; i < partySize; ++i)
+        {
+            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            Vector2Int coord = m_EmptyCellsList[randomIndex];
+
+            m_EmptyCellsList.RemoveAt(randomIndex);
+            Character newChar = Instantiate(PartyPrefabs[Random.Range(0, PartyPrefabs.Length)]);
+            AddObject(newChar, coord);
+
+            GroupController.AddCharacter(newChar);
+        }
+    }
+
+    private void RepositionParty()
+    {
+        for (int i = 0;i < GroupController.Party.Count; ++i)
+        {
+            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            Vector2Int coord = m_EmptyCellsList[randomIndex];
+
+            m_EmptyCellsList.RemoveAt(randomIndex);
+            Character character = GroupController.Party[i];
+            AddObject(character, coord);
+        }
+    }
+
+    private void GenerateFood()
+    {
+        int foodCount = Random.Range(1, 3);
+        for (int i = 0; i < foodCount; ++i)
+        {
+            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            Vector2Int coord = m_EmptyCellsList[randomIndex];
+
+            m_EmptyCellsList.RemoveAt(randomIndex);
+            FoodObject newFood = Instantiate(FoodPrefab[Random.Range(0, FoodPrefab.Length)]);
+            AddObject(newFood, coord);
+        }
+    }
+
+    private void GenerateChest()
+    {
+        int chestCount = Random.Range(1, 3);
+        for (int i = 0; i < chestCount; ++i)
+        {
+            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            Vector2Int coord = m_EmptyCellsList[randomIndex];
+
+            m_EmptyCellsList.RemoveAt(randomIndex);
+            ChestObject newChest = Instantiate(ChestPrefab[Random.Range(0, ChestPrefab.Length)]);
+            AddObject(newChest, coord);
+        }
     }
 }

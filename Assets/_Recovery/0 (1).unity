@@ -323,6 +323,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GroupController
   Party: []
   groupMode: 0
+  m_ActionsTaken: 0
 --- !u!4 &1238288642
 Transform:
   m_ObjectHideFlags: 0
