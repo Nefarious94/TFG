@@ -104,4 +104,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae64887ad7a28f4cb850d7c231ae362, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodObject
+  foodName: Red Shroom
+  description: Restores a moderate amount of energy
   AmountGranted: 25

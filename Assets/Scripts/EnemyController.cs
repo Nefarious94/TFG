@@ -147,8 +147,11 @@ public class EnemyController : CellObject
         {
             if ((xDist == 0 && absYDist == 1) || (yDist == 0 && absXDist == 1))
             {
-                player.TakeDamage(attack);
-                return;
+                if (m_CurrentHealth != 0)
+                {
+                    player.TakeDamage(attack);
+                    return;
+                }                
             }
             else
             {

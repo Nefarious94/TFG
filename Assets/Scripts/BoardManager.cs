@@ -28,6 +28,7 @@ public class BoardManager : MonoBehaviour
     public GroupController GroupController;
     public Character[] PartyPrefabs;
     public FoodObject[] FoodPrefab;
+    public PotionObject[] PotionPrefab;
     public ChestObject[] ChestPrefab;
     public Tile[] GroundTiles;
     public ExitCellObject ExitCellPrefab;
@@ -67,9 +68,9 @@ public class BoardManager : MonoBehaviour
             }
         }
         GenerateDungeon();
-        CorridorCreator();
         GenerateEnemy();
         GenerateFood();
+        GeneratePotion();
         GenerateChest();
         if (!GroupController.HasParty)
         {
@@ -79,6 +80,7 @@ public class BoardManager : MonoBehaviour
         {
             RepositionParty();
         }
+        CorridorCreator();
     }
 
     void GenerateDungeon()
@@ -510,4 +512,19 @@ public class BoardManager : MonoBehaviour
             AddObject(newChest, coord);
         }
     }
+
+    private void GeneratePotion()
+    {
+        int potionCount = Random.Range(0, 2);
+        for (int i = 0; i < potionCount; ++i)
+        {
+            int randomIndex = Random.Range(0, m_EmptyCellsList.Count);
+            Vector2Int coord = m_EmptyCellsList[randomIndex];
+
+            m_EmptyCellsList.RemoveAt(randomIndex);
+            PotionObject newPotion = Instantiate(PotionPrefab[Random.Range(0, PotionPrefab.Length)]);
+            AddObject(newPotion, coord);
+        }
+    }
 }
+

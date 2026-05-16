@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 public class ExitCellObject : CellObject
 {
     public Tile EndTile;
+    private bool m_PlayerInside;
 
     public override void Init(Vector2Int coord)
     {
@@ -13,6 +14,17 @@ public class ExitCellObject : CellObject
 
     public override void PlayerEntered()
     {
-        GameManager.Instance.NewLevel();
+        if (m_PlayerInside)
+            return;
+
+        m_PlayerInside = true;
+
+        DialogManager.Instance.ExitCellDialog();
+    }
+
+    public ExitCellObject ResetExit()
+    {
+        m_PlayerInside = false;
+        return this;
     }
 }

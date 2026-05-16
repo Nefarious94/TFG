@@ -1,0 +1,5 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="GoldContainer" style="flex-grow: 1; right: 50px; top: auto; font-size: 32px; position: absolute; -unity-text-align: upper-right; align-self: flex-end; color: rgb(255, 255, 255); bottom: 50px;">
+        <ui:Label text="Label" name="GoldLabel"/>
+    </ui:VisualElement>
+</ui:UXML>

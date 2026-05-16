@@ -69,9 +69,7 @@ public class GroupController : MonoBehaviour
         Party.Remove(character);
         if (Party.Count == 0)
         {
-            //GameOver();
-            Debug.Log("Game Over");
-            Application.Quit();
+            GameManager.Instance.EnterBase();
         }
     }
 }

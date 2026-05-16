@@ -6,7 +6,6 @@ public class PlayerController : MonoBehaviour
     private GroupController m_Group;
 
     public float MoveDelay = 0.15f;
-    //private float m_Timer;
 
     public void Init(GroupController group)
     {
@@ -15,10 +14,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        //m_Timer -= Time.deltaTime;
-
-        //if (m_Timer > 0)
-            //return;
+        if (UIManager.Instance.pause.pauseOpen)
+            return;
 
         Vector2Int direction = Vector2Int.zero;
 

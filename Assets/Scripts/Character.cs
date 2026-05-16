@@ -7,14 +7,21 @@ public class Character : CellObject
 
     private bool m_IsGameOver;
     public Vector2Int Cell => m_Cell;
-    private int m_CurrentHP;
+    public int m_CurrentHP;
     public int maxHp = 10;
+    private bool initiated = false;
+
+    private CellObject lastCell;
 
     public override void Init(Vector2Int coord)
     {
         base.Init(coord);
         m_Board = GameManager.Instance.BoardManager;
-        m_CurrentHP = maxHp;
+        if (!initiated)
+        {
+            m_CurrentHP = maxHp;
+            initiated = true;
+        }       
     }
 
     public bool TryMove(Vector2Int target)
@@ -40,13 +47,22 @@ public class Character : CellObject
         if (targetCell.Passable)
         {
             var currentCell = m_Board.GetCellData(m_Cell);
-            currentCell.ContainedObject = null;
+            if (lastCell is ExitCellObject lastExit)
+            {
+                currentCell.ContainedObject = lastExit.ResetExit();
+            }
+            else
+            {
+                currentCell.ContainedObject = null;
+            }
             m_Cell = target;
             GroupController group = GameManager.Instance.BoardManager.GroupController;
 
             if (targetCell.ContainedObject is ExitCellObject exit)
             {
+                transform.position = m_Board.CellToWorld(target);
                 exit.PlayerEntered();
+                lastCell = exit;
                 return true;
             }
             else if (targetCell.ContainedObject != null)
@@ -56,6 +72,11 @@ public class Character : CellObject
                     return false;
                 }
                 targetCell.ContainedObject.PlayerEntered();
+                lastCell = null;
+            }
+            else
+            {
+                lastCell = null;
             }
 
             targetCell.ContainedObject = this;
@@ -282,5 +303,14 @@ public class Character : CellObject
             }
         }
         return null;
+    }
+
+    public void HealPotion(int amount)
+    {
+        m_CurrentHP += amount;
+        if (m_CurrentHP > maxHp)
+        {
+            m_CurrentHP = maxHp;
+        }
     }
 }
