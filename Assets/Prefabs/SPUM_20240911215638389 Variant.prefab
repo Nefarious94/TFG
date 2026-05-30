@@ -179,6 +179,7 @@ MonoBehaviour:
   speed: 3
   dungeonEntrance: {x: -1.5, y: 23.25}
   triggerRadius: 0.5
+  visualRoot: {fileID: 5308455359234633202, guid: 8fe292fb86d7e724b8ba1aafb568786a, type: 3}
 --- !u!50 &8825420436917106046
 Rigidbody2D:
   serializedVersion: 5

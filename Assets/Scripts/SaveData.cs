@@ -1,22 +1,15 @@
-using System;
 using System.Collections.Generic;
 
-[Serializable]
+[System.Serializable]
 public class SaveData
 {
-    public string currentScene;
-
-    public float playerPosX;
-    public float playerPosY;
     public int gold;
-    public List<string> inventoryItems;
-    public List<AllyControllerSaveData> group;
-    //public List<string> equippedItems;
+    public int food;
+    public int dungeonFloor;
 
-    public SaveData()
-    {
-        inventoryItems = new List<string>();
-        group = new List<AllyControllerSaveData>();
-        //equippedItems = new List<string>();
-    }
+    public List<SaveDataCharacter> party =
+        new List<SaveDataCharacter>();
+
+    public List<SaveDataItem> inventory =
+        new List<SaveDataItem>();
 }

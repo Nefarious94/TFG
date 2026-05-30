@@ -8,11 +8,14 @@ public class FoodObject : CellObject
     public int AmountGranted;
     public override void PlayerEntered()
     {
+        var cell =
+        GameManager.Instance.BoardManager.GetCellData(m_Cell);
+        cell.ContainedObject = null;
         Destroy(gameObject);
         Item item = new Item();
         item.itemName = foodName;
-        item.itemType = "Consumable";
-        item.itemSubType = "food";
+        item.itemType = Item.ItemType.Consumible;
+        item.itemSubType = Item.SubType.Food;
         item.description = description;
         item.stat_1_value = AmountGranted;
         GameManager.Instance.inventoryPlayer.addItem(item);

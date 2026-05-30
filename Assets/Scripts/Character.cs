@@ -1,17 +1,61 @@
-using System.Text;
 using UnityEngine;
+using System.Collections.Generic;
+using System;
 
 public class Character : CellObject
 {
+    public enum charClass
+    {
+        Warrior,
+        Knight,
+        Rogue,
+        BlackMage,
+        WhiteMage,
+        Berserker,
+        Archer
+    }
+
     protected BoardManager m_Board;
-
-    private bool m_IsGameOver;
-    public Vector2Int Cell => m_Cell;
-    public int m_CurrentHP;
-    public int maxHp = 10;
     private bool initiated = false;
+    public Vector2Int Cell => m_Cell;
 
-    private CellObject lastCell;
+    public int level = 1;
+
+    public int basestrength;
+    public int basedexterity;
+    public int basevitality;
+    public int baseintelligence;
+
+    public int strength;
+    public int dexterity;
+    public int vitality;
+    public int intelligence;
+    public int hpMultiplier;
+    public int manaMultiplier;
+
+    public int maxHP;
+    public int currentHP;
+    public int maxMana;
+    public int currentMana;
+    public int attack;
+    public int m_attack;
+    public int defense;
+    public int m_defense;
+    public int rateCrit;
+
+    public bool isCrtit;
+    public bool isBuffed;
+    public string buffStat;
+    public int buffValue;
+    public int buffTurns;
+
+    public charClass m_class;
+
+    public Item.ArmorType armorType;
+    public Item.WeaponType weaponType;
+
+    public List<Ability> abilitiesTree = new List<Ability>();
+    public List<Ability> abilitiesUnlocked = new List<Ability>();
 
     public override void Init(Vector2Int coord)
     {
@@ -19,298 +63,135 @@ public class Character : CellObject
         m_Board = GameManager.Instance.BoardManager;
         if (!initiated)
         {
-            m_CurrentHP = maxHp;
+            CalculateStats();
+            currentHP = maxHP;
+            currentMana = maxMana;
+            AddAbilities();
+            CheckAbilities();
             initiated = true;
-        }       
-    }
-
-    public bool TryMove(Vector2Int target)
-    {
-        var cellData = m_Board.GetCellData(target);
-
-        if (cellData == null || !cellData.Passable)
-            return false;
-
-        if (cellData.ContainedObject != null)
-        {
-            if (!cellData.ContainedObject.PlayerWantsToEnter())
-                return false;
-        }
-
-        return MoveTo(target);
-    }
-
-    public bool MoveTo(Vector2Int target)
-    {
-        var targetCell = m_Board.GetCellData(target);
-
-        if (targetCell.Passable)
-        {
-            var currentCell = m_Board.GetCellData(m_Cell);
-            if (lastCell is ExitCellObject lastExit)
-            {
-                currentCell.ContainedObject = lastExit.ResetExit();
-            }
-            else
-            {
-                currentCell.ContainedObject = null;
-            }
-            m_Cell = target;
-            GroupController group = GameManager.Instance.BoardManager.GroupController;
-
-            if (targetCell.ContainedObject is ExitCellObject exit)
-            {
-                transform.position = m_Board.CellToWorld(target);
-                exit.PlayerEntered();
-                lastCell = exit;
-                return true;
-            }
-            else if (targetCell.ContainedObject != null)
-            {
-                if (targetCell.ContainedObject is Character)
-                {
-                    return false;
-                }
-                targetCell.ContainedObject.PlayerEntered();
-                lastCell = null;
-            }
-            else
-            {
-                lastCell = null;
-            }
-
-            targetCell.ContainedObject = this;
-
-            transform.position = m_Board.CellToWorld(target);
-
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 
-    public void AutoMove()
+    public void CalculateStats()
     {
-        EnemyController enemy = GetNearbyEnemy(2);
-
-        int xDist;
-        int yDist;
-
-        int absXDist;
-        int absYDist;
-
-        if (enemy != null)
+        switch (m_class)
         {
-            var enemyCell = enemy.Cell;
+            case charClass.Archer:
+                basestrength = 2;
+                basedexterity = 5;
+                baseintelligence = 1;
+                basevitality = 2;
+                hpMultiplier = 2;
+                manaMultiplier = 3;
+                break;
 
-            xDist = enemyCell.x - m_Cell.x;
-            yDist = enemyCell.y - m_Cell.y;
+            case charClass.Berserker:
+                basestrength = 5;
+                basedexterity = 2;
+                baseintelligence = 1;
+                basevitality = 2;
+                hpMultiplier = 3;
+                manaMultiplier = 2;
+                break;
 
-            absXDist = Mathf.Abs(xDist);
-            absYDist = Mathf.Abs(yDist);
+            case charClass.BlackMage:
+                basestrength = 1;
+                basedexterity = 3;
+                baseintelligence = 5;
+                basevitality = 1;
+                hpMultiplier = 2;
+                manaMultiplier = 4;
+                break;
 
-            if ((xDist == 0 && absYDist == 1) || (yDist == 0 && absXDist == 1))
-            {
-                enemy.TakeDamage();
-            }
-            else
-            {
-                if (absXDist > absYDist)
-                {
-                    if (!TryMoveInX(xDist))
-                    {
-                        TryMoveInY(yDist);
-                    }
-                }
-                else
-                {
-                    if (!TryMoveInY(yDist))
-                    {
-                        TryMoveInX(xDist);
-                    }
-                }
-            }
-            return;
+            case charClass.Knight:
+                basestrength = 3;
+                basedexterity = 1;
+                baseintelligence = 1;
+                basevitality = 5;
+                hpMultiplier = 4;
+                manaMultiplier = 2;
+                break;
+
+            case charClass.Rogue:
+                basestrength = 3;
+                basedexterity = 4;
+                baseintelligence = 1;
+                basevitality = 2;
+                hpMultiplier = 3;
+                manaMultiplier = 2;
+                break;
+
+            case charClass.Warrior:
+                basestrength = 4;
+                basedexterity = 2;
+                baseintelligence = 1;
+                basevitality = 3;
+                hpMultiplier = 3;
+                manaMultiplier = 2;
+                break;
+
+            case charClass.WhiteMage:
+                basestrength = 1;
+                basedexterity = 2;
+                baseintelligence = 5;
+                basevitality = 2;
+                hpMultiplier = 2;
+                manaMultiplier = 4;
+                break;
         }
 
-        var player = GameManager.Instance.BoardManager.GroupController.ActiveCharacter;
-        var playerCell = player.Cell;
-
-        xDist = playerCell.x - m_Cell.x;
-        yDist = playerCell.y - m_Cell.y;
-
-        absXDist = Mathf.Abs(xDist);
-        absYDist = Mathf.Abs(yDist);
-
-        if (absXDist > 3 || absYDist > 3)
+        strength = basestrength * level;
+        dexterity = basedexterity * level;
+        intelligence = baseintelligence * level;
+        vitality = basevitality * level;
+        
+        if (this is AllyController ally)
         {
-            bool moved = false;
-            int attempts = 0;
-            while (!moved && attempts < 100)
-            {
-                attempts++;
-                string[] move = { "up", "down", "right", "left" };
-                string chosenMove = move[Random.Range(0, move.Length)];
-                switch (chosenMove)
-                {
-                    case "up":
-                        moved = MoveTo(m_Cell + Vector2Int.up);
-                        break;
-
-                    case "down":
-                        moved = MoveTo(m_Cell + Vector2Int.down);
-                        break;
-
-                    case "right":
-                        moved = MoveTo(m_Cell + Vector2Int.right);
-                        break;
-
-                    case "left":
-                        moved = MoveTo(m_Cell + Vector2Int.left);
-                        break;
-                }
-            }
+            ally.CalculateEquipment();
+            strength += ally.bonusStrength;
+            dexterity += ally.bonusDexterity;
+            vitality += ally.bonusVitality;
+            intelligence += ally.bonusIntelligence;
         }
-        else
+
+        maxHP = vitality * hpMultiplier;
+        maxMana = intelligence * manaMultiplier;
+        attack = strength;
+        m_attack = intelligence;
+        defense = strength/2 + vitality/4;
+        m_defense = intelligence/2;
+        rateCrit = dexterity/3;
+
+        if (this.isBuffed)
         {
-            if ((xDist == 0 && absYDist == 1) || (yDist == 0 && absXDist == 1))
+            switch (buffStat)
             {
-                //wait
-            }
-            else
-            {
-                if (absXDist > absYDist)
-                {
-                    if (!TryMoveInX(xDist))
-                    {
-                        TryMoveInY(yDist);
-                    }
-                }
-                else
-                {
-                    if (!TryMoveInY(yDist))
-                    {
-                        TryMoveInX(xDist);
-                    }
-                }
+                case "attack":
+                    attack += buffValue;
+                    break;
+
+                case "m_attack":
+                    m_attack += buffValue;
+                    break;
+
+                case "defense":
+                    defense += buffValue;
+                    break;
+
+                case "m_defense":
+                    m_defense += buffValue;
+                    break;
             }
         }
     }
 
-    bool TryMoveInX(int xDist)
+    public void AddAbilities() 
     {
-        //try to get closer in x
 
-        //player to our right
-        if (xDist > 0)
-        {
-            return MoveTo(m_Cell + Vector2Int.right);
-        }
-
-        //player to our left
-        return MoveTo(m_Cell + Vector2Int.left);
     }
 
-    bool TryMoveInY(int yDist)
+    public void CheckAbilities()
     {
-        //try to get closer in y
 
-        //player on top
-        if (yDist > 0)
-        {
-            return MoveTo(m_Cell + Vector2Int.up);
-        }
-
-        //player below
-        return MoveTo(m_Cell + Vector2Int.down);
-    }
-
-    public override bool PlayerWantsToEnter()
-    {
-        var group = GameManager.Instance.BoardManager.GroupController;
-        var character = group.ActiveCharacter;
-
-        if (group.groupMode)
-        {
-            return false;
-        }
-        else
-        {
-            SwapPositions(character);
-            return true;
-        }
-    }
-
-    private void SwapPositions(Character other)
-    {
-        var board = m_Board;
-
-        Vector2Int myCell = m_Cell;
-        Vector2Int otherCell = other.m_Cell;
-
-        var myCellData = board.GetCellData(myCell);
-        var otherCellData = board.GetCellData(otherCell);
-
-        // intercambiar en grid
-        myCellData.ContainedObject = other;
-        otherCellData.ContainedObject = this;
-
-        // intercambiar coords
-        m_Cell = otherCell;
-        other.m_Cell = myCell;
-
-        // actualizar posiciones visuales
-        transform.position = board.CellToWorld(m_Cell);
-        other.transform.position = board.CellToWorld(other.m_Cell);
-    }
-
-    public void TakeDamage(int amount)
-    {
-        m_CurrentHP -= amount;
-        Debug.Log("Damage received: " + amount + ", HP left: " + m_CurrentHP);
-        GroupController group = GameManager.Instance.BoardManager.GroupController;
-        if (m_CurrentHP <= 0)
-        {
-            var cell = m_Board.GetCellData(m_Cell);
-            cell.ContainedObject = null;
-            Destroy(gameObject);
-            Debug.Log(name + " died");
-            group.Death(this);
-            if (this == group.ActiveCharacter)
-            {
-                group.NextCharacter();
-            }
-        }
-    }
-
-    public EnemyController GetNearbyEnemy(int range)
-    {
-        for (int x = -range; x <= range; x++)
-        {
-            for (int y = -range; y <= range; y++)
-            {
-                if (x == 0 && y == 0) continue;
-
-                Vector2Int checkCoord = m_Cell + new Vector2Int(x, y);
-                var cellData = m_Board.GetCellData(checkCoord);
-
-                if (cellData != null && cellData.ContainedObject is EnemyController enemy)
-                {
-                    return enemy;
-                }
-            }
-        }
-        return null;
-    }
-
-    public void HealPotion(int amount)
-    {
-        m_CurrentHP += amount;
-        if (m_CurrentHP > maxHp)
-        {
-            m_CurrentHP = maxHp;
-        }
     }
 }

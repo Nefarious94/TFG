@@ -119,6 +119,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &101565595
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 101565597}
+  - component: {fileID: 101565596}
+  m_Layer: 0
+  m_Name: GroupController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &101565596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101565595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87badb3b4a4be974788ae2af797c3884, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroupController
+  Party: []
+  m_CurrentIndex: 0
+  groupMode: 0
+  m_ActionsTaken: 0
+--- !u!4 &101565597
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101565595}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.74016, y: 15.1086, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,10 +337,20 @@ MonoBehaviour:
   BaseManager: {fileID: 0}
   BoardManager: {fileID: 0}
   PlayerController: {fileID: 0}
-  GroupController: {fileID: 0}
+  GroupController: {fileID: 7435678368022380545, guid: 70056c045cb162748ac254caf71ef393, type: 3}
+  PartyPrefabs:
+  - {fileID: 9027549894279277247, guid: edd3bf53440f0b742be5439fbb56caf0, type: 3}
+  - {fileID: -4381358196372636600, guid: a371d26c95e571c4aa94d3ff5b38e011, type: 3}
+  - {fileID: -7914555082291726406, guid: c22b42dd1aaa77740b2e8fce19d39aa5, type: 3}
+  - {fileID: -2388783553017676160, guid: abedc291ed040df428b62669bcebc2e9, type: 3}
+  - {fileID: -1966298055893140890, guid: 93f050c5de7e6524a91a89731596ea19, type: 3}
+  - {fileID: -5806172090545730421, guid: 29d0346e0da27214b9bd811da4420358, type: 3}
+  - {fileID: -3913421906563351015, guid: db3d214fe08809b4fa74b970a028ad24, type: 3}
   inventoryPlayer: {fileID: 7769447248681883951, guid: 9e5a95edc2012c543908ec032f18d911, type: 3}
   UIManager: {fileID: 799533966}
+  m_FoodAmount: 100
   m_Gold: 0
+  dungeonFloor: 0
   abilities:
   - {fileID: 11400000, guid: 85a8e2f2b76c545418eff83fa16019d5, type: 2}
 --- !u!4 &636967508
@@ -356,9 +414,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   pause: {fileID: 2046976119845591249, guid: 1dc26e4976608264a81feb4ff1e08eee, type: 3}
   inventory: {fileID: 3683995919714522961, guid: 7fda1fc92686a464f9357c2fe331365e, type: 3}
-  ability: {fileID: 2749216924947121302, guid: 1487309dbf0da3444acdb33fd7040bc7, type: 3}
+  ability: {fileID: 0}
   healthBar: {fileID: 0}
-  dialog: {fileID: 0}
+  manaBar: {fileID: 0}
+  dialog: {fileID: 1649920464}
+  floor: {fileID: 0}
+  gold: {fileID: 0}
+  equipment: {fileID: 0}
 --- !u!1 &1300648843
 GameObject:
   m_ObjectHideFlags: 0
@@ -388,7 +450,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbbec894b3a6d8d419ec0115e0f6c4d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogManager
-  uiDialog: {fileID: 0}
+  uiDialog: {fileID: 1649920464}
+  groupChoice: 0
 --- !u!4 &1300648845
 Transform:
   m_ObjectHideFlags: 0
@@ -399,6 +462,75 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.84697, y: 10.99516, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1649920462
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1649920465}
+  - component: {fileID: 1649920464}
+  - component: {fileID: 1649920463}
+  m_Layer: 0
+  m_Name: UIDialog
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1649920463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1649920462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: b6a6d3d59879953448f3d6f4ab5f8466, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: cbb69308f6fda0a4fa47058c8197bb71, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &1649920464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1649920462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0819555846c98614ab19c782d8ced7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIDialog
+  document: {fileID: 1649920463}
+--- !u!4 &1649920465
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1649920462}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.94396, y: 9.92798, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -455,5 +587,7 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 636967508}
   - {fileID: 799533965}
-  - {fileID: 1887324871}
   - {fileID: 1300648845}
+  - {fileID: 1887324871}
+  - {fileID: 101565597}
+  - {fileID: 1649920465}

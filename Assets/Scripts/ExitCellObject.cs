@@ -22,9 +22,8 @@ public class ExitCellObject : CellObject
         DialogManager.Instance.ExitCellDialog();
     }
 
-    public ExitCellObject ResetExit()
+    public void ResetExit()
     {
         m_PlayerInside = false;
-        return this;
     }
 }

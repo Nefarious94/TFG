@@ -22,9 +22,7 @@ public class BasePlayerController : MonoBehaviour
 
     void Update()
     {
-        if (UIManager.Instance.pause.pauseOpen)
-            return;
-        if (UIManager.Instance.dialog.DialogOpen)
+        if (UIManager.Instance.BlockMove())
             return;
 
         move = MoveAction.ReadValue<Vector2>();
@@ -41,9 +39,7 @@ public class BasePlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (UIManager.Instance.pause.pauseOpen)
-            return;
-        if (UIManager.Instance.dialog.DialogOpen)
+        if (UIManager.Instance.BlockMove())
             return;
 
         Vector2 position = (Vector2)rigidbody2d.position + move * speed * Time.deltaTime;

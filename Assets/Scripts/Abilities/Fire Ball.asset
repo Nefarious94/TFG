@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb8967aa8f8d9fb40a67c424eb8f29b4, type: 3}
+  m_Name: Fire Ball
+  m_EditorClassIdentifier: Assembly-CSharp::Ability
+  abilityName: Fire Ball
+  description: 
+  type: 1
+  power: 3
+  range: 10
+  projectilePrefab: {fileID: 6222394124663974298, guid: f50dc4cba0c4a134ea2d7f88115bdc31, type: 3}

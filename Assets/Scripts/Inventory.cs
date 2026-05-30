@@ -26,4 +26,9 @@ public class Inventory : MonoBehaviour
         }
         return null;
     }
+
+    public void ClearInventory()
+    {
+        ItemsList.Clear();
+    }
 }

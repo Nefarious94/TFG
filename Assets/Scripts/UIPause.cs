@@ -32,6 +32,7 @@ public class UIPause : MonoBehaviour
         m_PauseBase = new List<string>()
         {
             "Inventory",
+            "Group Order",
             "Equipment",
             "Abilities",
             "Options",
@@ -102,10 +103,12 @@ public class UIPause : MonoBehaviour
                     UIManager.Instance.OpenInventory();
                     break;
 
+                case "Group Order":
+                    GroupController.Instance.StartChangeOrder();
+                    break;
+
                 case "Equipment":
-
-                    Debug.Log("OPEN EQUIPMENT");
-
+                    UIManager.Instance.OpenEquipment();
                     break;
 
                 case "Abilities":
@@ -120,21 +123,15 @@ public class UIPause : MonoBehaviour
                     break;
 
                 case "Save":
-
-                    Debug.Log("SAVE GAME");
-
+                    DialogManager.Instance.SaveDialog();
                     break;
 
                 case "Load":
-
-                    Debug.Log("LOAD GAME");
-
+                    DialogManager.Instance.LoadDialog();
                     break;
 
                 case "Main Menu":
-
-                    Debug.Log("RETURN MAIN MENU");
-
+                    GameManager.Instance.EnterMain();
                     break;
 
                 case "Exit":

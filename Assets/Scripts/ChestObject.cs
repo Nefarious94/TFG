@@ -10,6 +10,8 @@ public class ChestObject : CellObject
 
     public override void PlayerEntered()
     {
+        var cell = GameManager.Instance.BoardManager.GetCellData(m_Cell);
+        cell.ContainedObject = null;
         Destroy(gameObject);
         GameManager.Instance.OpenChest(this);
     }

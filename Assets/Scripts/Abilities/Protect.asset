@@ -10,7 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb8967aa8f8d9fb40a67c424eb8f29b4, type: 3}
-  m_Name: Prueba 1
+  m_Name: Protect
   m_EditorClassIdentifier: Assembly-CSharp::Ability
-  abilityName: Prueba1
-  description: Fuego
+  abilityName: 
+  description: 
+  type: 0
+  power: 0
+  range: 0
+  projectilePrefab: {fileID: 0}

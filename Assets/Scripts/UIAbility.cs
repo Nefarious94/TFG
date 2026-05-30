@@ -21,8 +21,13 @@ public class UIAbility : MonoBehaviour
         InitAbilityUI();
     }
 
-    void InitAbilityUI()
+    public void InitAbilityUI()
     {
+        if (GroupController.Instance.Party == null || GroupController.Instance.Party.Count == 0)
+        {
+            return;
+        }
+
         m_AbilityData = GameManager.Instance.abilities;
 
         m_AbilityRoot =
@@ -49,6 +54,8 @@ public class UIAbility : MonoBehaviour
 
     public void RefreshAbility()
     {
+        m_AbilityData = GroupController.Instance.ActiveCharacter.abilitiesUnlocked;
+
         if (m_AbilityData == null)
             return;
 
@@ -84,6 +91,10 @@ public class UIAbility : MonoBehaviour
             {
                 m_DescriptionLabel.text =
                     data.description;
+            }
+            if (GameManager.Instance.CurrentMode == GameManager.GameMode.Dungeon)
+            {
+                DialogManager.Instance.AbilityDialog(data);
             }
         }
     }

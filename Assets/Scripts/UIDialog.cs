@@ -16,10 +16,11 @@ public class UIDialog : MonoBehaviour
     private List<string> m_CurrentOptions;
     private Action<int> m_OnOptionSelected;
 
+    public bool dialogOpen;
 
     public bool DialogOpen { get; private set; }
 
-    private void Start()
+    private void Awake()
     {
         InitDialogUI();
     }

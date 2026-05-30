@@ -1,11 +1,10 @@
 using System.Collections;
 using System.IO;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class SaveManager : MonoBehaviour
 {
-    public static SaveManager Instance { get; private set; }
+    public static SaveManager Instance;
 
     private void Awake()
     {
@@ -16,6 +15,7 @@ public class SaveManager : MonoBehaviour
         }
 
         Instance = this;
+
         DontDestroyOnLoad(gameObject);
     }
 
@@ -27,42 +27,17 @@ public class SaveManager : MonoBehaviour
 
     public void SaveGame(int slot)
     {
-        SaveData data = new SaveData();
+        SaveData data = CreateSaveData();
 
-        data.currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        string json =
+            JsonUtility.ToJson(data, true);
 
-        Transform player = GameManager.Instance.PlayerController.transform;
+        File.WriteAllText(
+            GetSavePath(slot),
+            json
+        );
 
-        data.playerPosX = player.position.x;
-        data.playerPosY = player.position.y;
-
-        data.gold = GameManager.Instance.m_Gold;
-
-        foreach (Item item in GameManager.Instance.inventoryPlayer.ItemsList)
-        {
-            data.inventoryItems.Add(item.itemName);
-        }
-
-        foreach (Character character in GameManager.Instance.GroupController.Party)
-        {
-            AllyControllerSaveData allyData = new AllyControllerSaveData();
-
-            //allyData.level = character.level;
-            allyData.maxHp = character.maxHp;
-            //allyData.attack = character.attack;
-            //allyData.defense = character.defense;
-
-            data.group.Add(allyData);
-        }
-
-        // Equipment
-        // TODO cuando hagas equipment
-
-        string json = JsonUtility.ToJson(data, true);
-
-        File.WriteAllText(GetSavePath(slot), json);
-
-        Debug.Log("GAME SAVED SLOT: " + slot);
+        Debug.Log("Game Saved");
     }
 
     public void LoadGame(int slot)
@@ -71,72 +46,234 @@ public class SaveManager : MonoBehaviour
 
         if (!File.Exists(path))
         {
-            Debug.Log("NO SAVE FILE");
+            Debug.Log("No save found");
             return;
         }
 
-        string json = File.ReadAllText(path);
+        string json =
+            File.ReadAllText(path);
 
-        SaveData data = JsonUtility.FromJson<SaveData>(json);
+        SaveData data =
+            JsonUtility.FromJson<SaveData>(json);
 
-        StartCoroutine(LoadGameCoroutine(data));
+        GameManager.Instance.InitBase();
 
-        Debug.Log("GAME LOADED SLOT: " + slot);
-    }
-
-    IEnumerator LoadGameCoroutine(SaveData data)
-    {
-        SceneManager.LoadScene(data.currentScene);
-
-        yield return null;
-
-        Transform player = GameManager.Instance.PlayerController.transform;
-
-        player.position = new Vector3(
-            data.playerPosX,
-            data.playerPosY
+        StartCoroutine(
+            DelayedLoad(data)
         );
 
-        GameManager.Instance.m_Gold = data.gold;
+        Debug.Log("Game Loaded");
+    }
+    IEnumerator DelayedLoad(SaveData data)
+    {
+        yield return null;
+        yield return null;
 
-        GameManager.Instance.inventoryPlayer.ItemsList.Clear();
+        ApplySaveData(data);
+    }
 
-        foreach (string itemName in data.inventoryItems)
+    SaveData CreateSaveData()
+    {
+        SaveData data = new SaveData();
+
+        GameManager gm = GameManager.Instance;
+
+        data.gold = gm.m_Gold;
+        data.food = gm.m_FoodAmount;
+        data.dungeonFloor = gm.dungeonFloor;
+
+        // INVENTORY
+
+        foreach (Item item in gm.inventoryPlayer.ItemsList)
         {
-            Item item = new Item();
-
-            item.itemName = itemName;
-
-            GameManager.Instance.inventoryPlayer.addItem(item);
+            data.inventory.Add(
+                ConvertItem(item)
+            );
         }
 
-        foreach (AllyControllerSaveData allyData in data.group)
+        // PARTY
+
+        foreach (AllyController ally in gm.GroupController.Party)
         {
-            Character character = new Character();
+            SaveDataCharacter charData =
+                new SaveDataCharacter();
 
-            //character.level = allyData.level;
-            character.maxHp = allyData.maxHp;
-            //character.attack = allyData.attack;
-            //character.defense = allyData.defense;
+            charData.characterClass =
+                ally.m_class;
 
-            GameManager.Instance.GroupController.Party.Add(character);
+            charData.level = ally.level;
+            charData.currentHP = ally.currentHP;
+            charData.currentExp = ally.currentExp;
+
+            charData.head =
+                ConvertItem(ally.Head);
+
+            charData.chest =
+                ConvertItem(ally.Chest);
+
+            charData.arms =
+                ConvertItem(ally.Arms);
+
+            charData.legs =
+                ConvertItem(ally.Legs);
+
+            charData.boots =
+                ConvertItem(ally.Boots);
+
+            charData.rightHand =
+                ConvertItem(ally.RightHand);
+
+            data.party.Add(charData);
+        }
+
+        return data;
+    }
+
+    SaveDataItem ConvertItem(Item item)
+    {
+        if (item == null)
+            return null;
+
+        return new SaveDataItem
+        {
+            itemName = item.itemName,
+
+            itemType = (int)item.itemType,
+            itemSubType = (int)item.itemSubType,
+
+            armorType = (int)item.armorType,
+            weaponType = (int)item.weaponType,
+
+            stat1 = item.stat_1_value,
+            stat2 = item.stat_2_value,
+
+            description = item.description
+        };
+    }
+
+    void ApplySaveData(SaveData data)
+    {
+        GameManager gm = GameManager.Instance;
+
+        gm.m_Gold = data.gold;
+        gm.m_FoodAmount = data.food;
+        gm.dungeonFloor = data.dungeonFloor;
+
+        // INVENTORY
+
+        gm.inventoryPlayer.ItemsList.Clear();
+
+        foreach (SaveDataItem itemData in data.inventory)
+        {
+            gm.inventoryPlayer.addItem(
+                CreateItem(itemData)
+            );
+        }
+
+        // PARTY
+
+        foreach (AllyController ally in gm.GroupController.Party)
+        {
+            Destroy(ally.gameObject);
+        }
+
+        gm.GroupController.Party.Clear();
+
+        foreach (SaveDataCharacter charData in data.party)
+        {
+            AllyController prefab =
+                GetPrefabFromClass(charData.characterClass);
+
+            AllyController ally =
+                Instantiate(prefab);
+
+            ally.gameObject.SetActive(false);
+
+            ally.level = charData.level;
+            ally.currentHP = charData.currentHP;
+            ally.currentExp = charData.currentExp;
+
+            ally.Head = CreateItem(charData.head);
+            ally.Chest = CreateItem(charData.chest);
+            ally.Arms = CreateItem(charData.arms);
+            ally.Legs = CreateItem(charData.legs);
+            ally.Boots = CreateItem(charData.boots);
+            ally.RightHand = CreateItem(charData.rightHand);
+
+            ally.CalculateStats();
+
+            gm.GroupController.AddCharacter(ally);
+        }
+
+        if (UIManager.Instance != null)
+        {
+            if (UIManager.Instance.ability != null) UIManager.Instance.ability.InitAbilityUI();
+            if (UIManager.Instance.equipment != null) UIManager.Instance.equipment.InitEquipmentUI();
         }
     }
 
-    public bool SaveExists(int slot)
+    Item CreateItem(SaveDataItem data)
     {
-        return File.Exists(GetSavePath(slot));
+        if (data == null)
+            return null;
+
+        Item item = new Item();
+
+        item.itemName = data.itemName;
+
+        item.itemType =
+            (Item.ItemType)data.itemType;
+
+        item.itemSubType =
+            (Item.SubType)data.itemSubType;
+
+        item.armorType =
+            (Item.ArmorType)data.armorType;
+
+        item.weaponType =
+            (Item.WeaponType)data.weaponType;
+
+        item.stat_1_value = data.stat1;
+        item.stat_2_value = data.stat2;
+
+        item.description = data.description;
+
+        return item;
     }
 
-    public void DeleteSave(int slot)
+    AllyController GetPrefabFromClass(Character.charClass charClass)
     {
-        string path = GetSavePath(slot);
-
-        if (File.Exists(path))
+        AllyController character = null;
+        switch (charClass)
         {
-            File.Delete(path);
+            case Character.charClass.Archer:
+                character = GameManager.Instance.PartyPrefabs[0];
+                break;
 
-            Debug.Log("SAVE DELETED SLOT: " + slot);
+            case Character.charClass.Berserker:
+                character = GameManager.Instance.PartyPrefabs[1];
+                break;
+
+            case Character.charClass.BlackMage:
+                character = GameManager.Instance.PartyPrefabs[2];
+                break;
+
+            case Character.charClass.Knight:
+                character = GameManager.Instance.PartyPrefabs[3];
+                break;
+
+            case Character.charClass.Rogue:
+                character = GameManager.Instance.PartyPrefabs[4];
+                break;
+
+            case Character.charClass.Warrior:
+                character = GameManager.Instance.PartyPrefabs[5];
+                break;
+
+            case Character.charClass.WhiteMage:
+                character = GameManager.Instance.PartyPrefabs[6];
+                break;
         }
+        return character;
     }
 }

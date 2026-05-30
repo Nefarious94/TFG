@@ -17,4 +17,9 @@ public class CellObject : MonoBehaviour
     {
         return true;
     }
+
+    public virtual bool Block()
+    {
+        return true;
+    }
 }

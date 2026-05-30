@@ -10,9 +10,11 @@ public class UIManager : MonoBehaviour
     public UIInventory inventory;
     public UIAbility ability;
     public UIHealthBar healthBar;
+    public UIManaBar manaBar;
     public UIDialog dialog;
     public UIFloor floor;
     public UIGold gold;
+    public UIEquipment equipment;
 
     private void Awake()
     {
@@ -47,7 +49,8 @@ public class UIManager : MonoBehaviour
         HandlePause();
         if (GameManager.Instance.CurrentMode == GameManager.GameMode.Dungeon)
         {
-            healthBar.UpdateHealthBar(GameManager.Instance.GroupController.ActiveCharacter.m_CurrentHP, GameManager.Instance.GroupController.ActiveCharacter.maxHp);
+            healthBar.UpdateHealthBar(GameManager.Instance.GroupController.ActiveCharacter.currentHP, GameManager.Instance.GroupController.ActiveCharacter.maxHP);
+            manaBar.UpdateManaBar(GameManager.Instance.GroupController.ActiveCharacter.currentMana, GameManager.Instance.GroupController.ActiveCharacter.maxMana);
             floor.UpdateFloor(GameManager.Instance.dungeonFloor);
         }
     }
@@ -66,6 +69,13 @@ public class UIManager : MonoBehaviour
             if (ability.AbilityOpen)
             {
                 ability.CloseAbility();
+                pause.OpenPause();
+                return;
+            }
+
+            if (equipment.EquipmentOpen)
+            {
+                equipment.CloseEquipment();
                 pause.OpenPause();
                 return;
             }
@@ -92,6 +102,24 @@ public class UIManager : MonoBehaviour
         ability.OpenAbility();
     }
 
+    public void OpenEquipment()
+    {
+        pause.ClosePause();
+        equipment.OpenEquipment();
+    }
+
+    public bool BlockMove()
+    {
+        if (pause.pauseOpen || pause.PauseOpen || inventory.InventoryOpen || ability.AbilityOpen || dialog.DialogOpen || equipment.EquipmentOpen)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         FindUI();
@@ -103,8 +131,10 @@ public class UIManager : MonoBehaviour
         inventory = FindAnyObjectByType<UIInventory>();
         ability = FindAnyObjectByType<UIAbility>();
         healthBar = FindAnyObjectByType<UIHealthBar>();
+        manaBar = FindAnyObjectByType<UIManaBar>();
         dialog = FindAnyObjectByType<UIDialog>();
         floor = FindAnyObjectByType<UIFloor>();
         gold = FindAnyObjectByType<UIGold>();
+        equipment = FindAnyObjectByType<UIEquipment>();
     }
 }

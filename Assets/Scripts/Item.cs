@@ -2,11 +2,19 @@ using UnityEngine;
 
 public class Item
 {
+    public enum ItemType { Consumible, Armor, Weapon }
+    public enum SubType { Food, Potion, Head, Arm, Chest, Legs, Boots }
+    public enum ArmorType { Heavy, Medium, Light }
+    public enum WeaponType { Bow, Glove, Wand, Shield, Dagger, Sword, Cane }
+
+
     public static int code = 0;
     public int itemID;
     public string itemName;
-    public string itemType;
-    public string itemSubType;
+    public ItemType itemType;
+    public SubType itemSubType;
+    public ArmorType armorType;
+    public WeaponType weaponType;
     public string description;
 
     public string stat_1;
@@ -33,13 +41,13 @@ public class Item
 
     public void useItem()
     {
-        if (itemSubType == "food")
+        if (itemSubType == SubType.Food)
         {
             GameManager.Instance.ChangeFood(stat_1_value);
         }
-        if (itemSubType == "potion")
+        if (itemSubType == SubType.Potion)
         {
-            GameManager.Instance.PotionUse(stat_1_value);
+            GameManager.Instance.PotionUse(this);
         }
     }
 }
